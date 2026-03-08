@@ -4,12 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build & Run
 
-```bash
-nix build .#default        # build the neovim derivation → ./result/bin/nvim
-nix run .#default          # build and launch nvim directly
+This flake produces a **home-manager module** — there is no standalone `nvim` binary. Activate by including the module in an existing home-manager configuration:
+
+```nix
+imports = [ inputs.neovim.homeManagerModules.default ];
 ```
 
-Run tools from the dev shell (gh, git) via direnv:
+Then switch:
+
+```bash
+home-manager switch   # in the consuming home-manager setup
+```
+
+Dev shell tools (gh, git) via direnv:
 
 ```bash
 direnv allow               # one-time setup
@@ -18,46 +25,75 @@ direnv exec . gh <args>    # run any devShell tool without entering the shell
 
 ## Architecture
 
-This is a pure-Nix Neovim configuration using [nixvim](https://github.com/nix-community/nixvim) on top of [purplenoodlesoop/core-flake](https://github.com/purplenoodlesoop/core-flake).
+[lazyvim-nix](https://github.com/pfassina/lazyvim-nix) wraps [LazyVim](https://www.lazyvim.org/) as a home-manager module. LazyVim's core and extra plugins are pinned and symlinked from the Nix store ("dev mode"). Additional custom plugins (theme, flutter-tools, etc.) are managed by lazy.nvim at runtime.
 
-**No init.lua, no plugin manager** — everything is declared in Nix and built as a single derivation.
+**No init.lua to write** — all configuration is expressed in Nix via `programs.lazyvim` options.
 
 ### core-flake API
 
 `lib.evalFlake` accepts:
 - `perSystem = { pkgs, ... }: { ... }` — per-system config
-- `flake.packages.<name>` — exposed packages
 - `flake.shell` — devShell tool list
 - `tasks.<name>.body` — shell scripts exposed as `nix run .#<task>` (supports `${pkgs.foo}/bin/foo` interpolation)
 - `nixosModules.tasks` must be imported for tasks to work
 
+### lazyvim-nix API (`programs.lazyvim`)
+
+| Option | Type | Description |
+|---|---|---|
+| `enable` | bool | Enable the module |
+| `installCoreDependencies` | bool | Install git, ripgrep, fd, lazygit, fzf, curl |
+| `extraPackages` | list | System packages added to nvim's PATH |
+| `treesitterParsers` | list | Additional treesitter grammar packages from nixpkgs |
+| `extras.<cat>.<name>.enable` | bool | Enable a LazyVim extra |
+| `extras.<cat>.<name>.installDependencies` | bool | Install LSP/tools for this extra via Nix |
+| `extras.<cat>.<name>.config` | str | Lua to override the extra's plugin spec (full spec with `return`) |
+| `plugins.<name>` | str | Lua plugin spec → `lua/plugins/<name>.lua` (lazy.nvim fetches at runtime) |
+| `config.options` | str | Lua → `lua/config/options.lua` |
+| `config.keymaps` | str | Lua → `lua/config/keymaps.lua` |
+| `config.autocmds` | str | Lua → `lua/config/autocmds.lua` |
+| `configFiles` | path | Directory of Lua files to copy (alternative to inline strings) |
+
 ### Module structure
 
 ```
-neovim/default.nix          # root nixvim module; sets globals.mapleader, opts, imports all plugins
-neovim/plugins/
-  git.nix                   # gitsigns, neogit, diffview
-  explorer.nix              # neo-tree, oil
-  lsp.nix                   # dartls, nixd, ts_ls, ltex, yamlls, jsonls, lemminx, flutter-tools, schemastore
-  treesitter.nix            # all grammars via nixGrammars = true
-  completion.nix            # nvim-cmp + luasnip (autoEnableSources = true)
-  dap.nix                   # nvim-dap, dap-ui, dap-virtual-text
-  testing.nix               # neotest + neotest-dart adapter
-  tasks.nix                 # overseer
-  ui.nix                    # tokyonight moon, lualine, bufferline, noice, notify, cursorline, indent-blankline, rainbow-delimiters
-  editing.nix               # which-key, autopairs, comment, todo-comments, trouble
-  screenshot.nix            # nvim-silicon via extraPlugins (no native nixvim module)
-  telescope.nix             # telescope + fzf-native
-  terminal.nix              # toggleterm with Claude Code and lazygit float terminals
-  formatting.nix            # conform-nvim (nixfmt, prettier, stylua) with absolute pkgs paths
+flake.nix               # inputs: nixpkgs, core-flake, lazyvim-nix
+                        # outputs: homeManagerModules.default (merges core-flake devShell)
+lazyvim/
+  default.nix           # enable, extras, extraPackages, treesitterParsers
+  plugins.nix           # programs.lazyvim.plugins — custom lazy.nvim plugin specs
+  config.nix            # programs.lazyvim.config — options, keymaps, autocmds
 ```
 
-### nixvim conventions used here
+### Custom plugin pattern
 
-- Colorschemes live under `colorschemes.<name>`, not `plugins.<name>`
-- neo-tree config uses `settings.*` namespace (e.g. `settings.window.width`)
-- `nixGrammars = true` with no `grammarPackages` → nixvim manages all treesitter grammars
-- Plugins without native nixvim support use `extraPlugins = [ pkgs.vimPlugins.* ]` + `extraConfigLua`
-- cmp keymaps use `mapping.__raw = "cmp.mapping.preset.insert({...})"` for Lua blocks
-- DAP keymaps: `action.__raw = "function() ... end"` for Lua; plain `action = "<cmd>..."` for vim strings
-- Formatter binaries reference `${pkgs.tool}/bin/tool` directly to avoid PATH issues
+```nix
+programs.lazyvim.plugins.my-plugin = ''
+  return {
+    "author/plugin-name",
+    event = "BufReadPost",
+    opts = { ... },
+  }
+'';
+```
+
+Plugins are written to `~/.config/nvim/lua/plugins/<name>.lua` and loaded by lazy.nvim. Packages the plugin needs (LSP binaries, CLI tools) go in `extraPackages`.
+
+### Extras categories
+
+Available: `ai`, `coding`, `dap`, `editor`, `formatting`, `lang`, `linting`, `lsp`, `test`, `ui`, `util`
+
+Lang extras used here: `nix`, `dart`, `haskell`, `typescript`, `markdown`, `yaml`, `json`, `sql`, `git`
+
+### Splitting config across files
+
+Since `programs.lazyvim` is a NixOS module, its sub-options (`plugins`, `extras`, etc.) merge across imported files. A file that only sets `programs.lazyvim.plugins.*` is a valid partial module.
+
+## Dev Workflow
+
+- Build: there is no `nix build` — changes take effect after `home-manager switch` in the consuming flake
+- Run gh/git in flake env: `direnv exec . gh <args>` (after `direnv allow`)
+- direnv loads flake devShell automatically when `.envrc` has `use flake .`
+- DO NOT use `nix develop --command` — use `direnv exec .` instead
+- DO NOT add tools as separate flake packages — use `flake.shell`
+- DO NOT use `nix eval` commands

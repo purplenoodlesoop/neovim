@@ -5,29 +5,38 @@
       url = "github:purplenoodlesoop/core-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixvim = {
-      url = "github:nix-community/nixvim";
+    lazyvim-nix = {
+      url = "github:pfassina/lazyvim-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs =
-    { core-flake, nixvim, ... }:
-    with core-flake;
-    lib.evalFlake {
-      perSystem =
-        { pkgs, ... }:
-        {
-          imports = with nixosModules; [
-            tasks
-          ];
-          flake.shell = with pkgs; [
-            gh
-            git
-          ];
-          flake.packages.default = nixvim.legacyPackages.${pkgs.system}.makeNixvimWithModule {
-            module = ./neovim;
+    { core-flake, lazyvim-nix, ... }:
+    (
+      with core-flake;
+      lib.evalFlake {
+        perSystem =
+          { pkgs, ... }:
+          {
+            imports = with nixosModules; [
+              tasks
+            ];
+            flake.shell = with pkgs; [
+              gh
+              git
+            ];
           };
+      }
+    )
+    // {
+      homeManagerModules.default =
+        { ... }:
+        {
+          imports = [
+            lazyvim-nix.homeManagerModules.default
+            ./lazyvim
+          ];
         };
     };
 }
