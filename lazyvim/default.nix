@@ -18,54 +18,34 @@
     ];
 
     extras = {
-      lang.nix = {
-        enable = true;
-        installDependencies = true;
+      lang = {
+        nix = {
+          enable = true;
+          installDependencies = true;
+        };
+        dart.enable = true;
+        haskell.enable = true;
+        typescript = {
+          enable = true;
+          installDependencies = true;
+        };
+        markdown.enable = true;
+        yaml = {
+          enable = true;
+          installDependencies = true;
+        };
+        json.enable = true;
+        sql.enable = true;
+        git.enable = true;
       };
-      lang.dart = {
-        enable = true;
+      editor = {
+        neo_tree.enable = true;
+        overseer.enable = true;
       };
-      lang.haskell = {
-        enable = true;
-      };
-      lang.typescript = {
-        enable = true;
-        installDependencies = true;
-      };
-      lang.markdown = {
-        enable = true;
-      };
-      lang.yaml = {
-        enable = true;
-        installDependencies = true;
-      };
-      lang.json = {
-        enable = true;
-      };
-      lang.sql = {
-        enable = true;
-      };
-      lang.git = {
-        enable = true;
-      };
-      dap.core = {
-        enable = true;
-      };
-      test.core = {
-        enable = true;
-      };
-      editor.neo_tree = {
-        enable = true;
-      };
-      editor.overseer = {
-        enable = true;
-      };
-      ui.indent_blankline = {
-        enable = true;
-      };
-      formatting.prettier = {
-        enable = true;
-      };
+      dap.core.enable = true;
+      test.core.enable = true;
+      ui.indent_blankline.enable = true;
+      formatting.prettier.enable = true;
     };
   };
 }
