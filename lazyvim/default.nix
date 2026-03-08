@@ -11,6 +11,7 @@
 
     extraPackages = with pkgs; [
       silicon
+      vscode-js-debug
     ];
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
