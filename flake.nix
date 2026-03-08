@@ -13,24 +13,23 @@
 
   outputs =
     { core-flake, lazyvim-nix, ... }:
-    (
-      with core-flake;
-      lib.evalFlake {
-        perSystem =
-          { pkgs, ... }:
-          {
-            imports = with nixosModules; [
-              tasks
-            ];
-            flake.shell = with pkgs; [
-              gh
-              git
-            ];
-          };
-      }
-    )
-    // {
-      homeManagerModules.default =
+    let
+      perSystem =
+        with core-flake;
+        lib.evalFlake {
+          perSystem =
+            { pkgs, ... }:
+            {
+              imports = with nixosModules; [
+                tasks
+              ];
+              flake.shell = with pkgs; [
+                gh
+                git
+              ];
+            };
+        };
+      topLevel.homeManagerModules.default =
         { ... }:
         {
           imports = [
@@ -38,5 +37,7 @@
             ./lazyvim
           ];
         };
-    };
+
+    in
+    perSystem // topLevel;
 }
