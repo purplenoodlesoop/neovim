@@ -85,15 +85,30 @@ Available: `ai`, `coding`, `dap`, `editor`, `formatting`, `lang`, `linting`, `ls
 
 Lang extras used here: `nix`, `dart`, `haskell`, `typescript`, `markdown`, `yaml`, `json`, `sql`, `git`
 
+**Naming**: extras attribute names use underscores, not hyphens (e.g., `neo_tree`, `indent_blankline`).
+
 ### Splitting config across files
 
 Since `programs.lazyvim` is a NixOS module, its sub-options (`plugins`, `extras`, etc.) merge across imported files. A file that only sets `programs.lazyvim.plugins.*` is a valid partial module.
 
+## Nix Formatting Style
+
+Use [nixfmt](https://github.com/NixOS/nixfmt) conventions:
+- Each attrset entry on its own line; opening `{` on the same line as the key
+- Closing `}` at the same indentation as the key
+- `//` operator on its own line
+- Function args `{ ... }:` on same line as brace, body indented 2 spaces
+
+The flake merges system-agnostic outputs via:
+```nix
+let
+  perSystem = with core-flake; lib.evalFlake { ... };
+  topLevel.homeManagerModules.default = { ... }: { imports = [ ... ]; };
+in
+perSystem // topLevel;
+```
+
 ## Dev Workflow
 
 - Build: there is no `nix build` — changes take effect after `home-manager switch` in the consuming flake
-- Run gh/git in flake env: `direnv exec . gh <args>` (after `direnv allow`)
 - direnv loads flake devShell automatically when `.envrc` has `use flake .`
-- DO NOT use `nix develop --command` — use `direnv exec .` instead
-- DO NOT add tools as separate flake packages — use `flake.shell`
-- DO NOT use `nix eval` commands

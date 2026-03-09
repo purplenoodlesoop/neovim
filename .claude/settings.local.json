@@ -5,7 +5,8 @@
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:nix-community.github.io)",
       "Bash(git commit:*)",
-      "Bash(./result/bin/nvim:*)"
+      "Bash(./result/bin/nvim:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

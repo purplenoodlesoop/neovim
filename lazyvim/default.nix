@@ -12,11 +12,14 @@
     extraPackages = with pkgs; [
       silicon
       vscode-js-debug
+      typescript-language-server
       statix
+      yaml-language-server
     ];
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
       xml
+      jsonc
     ];
 
     extras = {
@@ -29,12 +32,30 @@
         haskell.enable = true;
         typescript = {
           enable = true;
-          installDependencies = true;
+          installDependencies = false;
         };
         markdown.enable = true;
         yaml = {
           enable = true;
           installDependencies = true;
+          config = ''
+            return {
+              "neovim/nvim-lspconfig",
+              opts = {
+                servers = {
+                  yamlls = {
+                    settings = {
+                      yaml = {
+                        schemas = {
+                          ["https://json.schemastore.org/pubspec.yaml"] = "pubspec.yaml",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          '';
         };
         json.enable = true;
         sql.enable = true;
