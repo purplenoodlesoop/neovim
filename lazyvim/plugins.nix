@@ -4,18 +4,48 @@
 
     theme = ''
       return {
-        "scottmckendry/cyberdream.nvim",
+        "Rigellute/shades-of-purple.vim",
         lazy = false,
         priority = 1000,
-        opts = {
-          italic_comments = true,
-          hide_fillchars = true,
-          terminal_colors = true,
-          theme = { variant = "default" },
-        },
-        config = function(_, opts)
-          require("cyberdream").setup(opts)
-          vim.cmd("colorscheme cyberdream")
+        config = function()
+          vim.cmd("colorscheme shades_of_purple")
+        end,
+      }
+    '';
+
+    minimap = ''
+      return {
+        "echasnovski/mini.map",
+        version = "*",
+        event = "BufReadPost",
+        config = function()
+          local map = require("mini.map")
+          map.setup({
+            integrations = {
+              map.gen_integration.builtin_search(),
+              map.gen_integration.diagnostic(),
+              map.gen_integration.gitsigns(),
+            },
+            symbols = {
+              encode = map.gen_encode_symbols.dot("4x2"),
+            },
+            window = {
+              side = "right",
+              width = 10,
+              winblend = 15,
+              show_integration_count = false,
+            },
+          })
+          vim.api.nvim_create_autocmd("BufWinEnter", {
+            callback = function()
+              local ft = vim.bo.filetype
+              local excluded = { "neo-tree", "lazy", "mason", "TelescopePrompt", "help", "toggleterm" }
+              for _, v in ipairs(excluded) do
+                if ft == v then return end
+              end
+              MiniMap.open()
+            end,
+          })
         end,
       }
     '';

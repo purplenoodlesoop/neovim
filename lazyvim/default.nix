@@ -12,6 +12,7 @@
     extraPackages = with pkgs; [
       silicon
       vscode-js-debug
+      statix
     ];
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
@@ -40,7 +41,19 @@
         git.enable = true;
       };
       editor = {
-        neo_tree.enable = true;
+        neo_tree = {
+          enable = true;
+          config = ''
+            return {
+              "nvim-neo-tree/neo-tree.nvim",
+              opts = {
+                filesystem = {
+                  use_libuv_file_watcher = true,
+                },
+              },
+            }
+          '';
+        };
         overseer.enable = true;
       };
       dap.core.enable = true;
