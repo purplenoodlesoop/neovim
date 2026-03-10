@@ -11,13 +11,30 @@
       }
     '';
 
+    diffview = ''
+      return {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFileHistory" },
+      }
+    '';
+
+    markdown-preview = ''
+      return {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = function() vim.fn["mkdp#util#install"]() end,
+      }
+    '';
+
     theme = ''
       return {
-        "Rigellute/shades-of-purple.vim",
+        "hyperb1iss/silkcircuit-nvim",
         lazy = false,
         priority = 1000,
         config = function()
-          vim.cmd("colorscheme shades_of_purple")
+          require("silkcircuit").setup({})
+          vim.cmd("colorscheme silkcircuit")
         end,
       }
     '';
