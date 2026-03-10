@@ -17,6 +17,16 @@
       end,
     })
 
+    vim.api.nvim_create_autocmd({ "BufWinEnter", "FileType" }, {
+      callback = function()
+        if vim.bo.buftype == "" then
+          vim.opt_local.statuscolumn = "%C%s%=%{v:relnum}  %{v:lnum} "
+        else
+          vim.opt_local.statuscolumn = ""
+        end
+      end,
+    })
+
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "FocusGained" }, {
       pattern = "*",
       callback = function()

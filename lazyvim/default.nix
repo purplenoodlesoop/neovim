@@ -16,6 +16,7 @@
       typescript-language-server
       statix
       yaml-language-server
+      nixd
     ];
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
@@ -27,6 +28,16 @@
         nix = {
           enable = true;
           installDependencies = true;
+          config = ''
+            return {
+              "neovim/nvim-lspconfig",
+              opts = {
+                servers = {
+                  nixd = {},
+                },
+              },
+            }
+          '';
         };
         dart.enable = true;
         haskell.enable = true;
@@ -38,24 +49,6 @@
         yaml = {
           enable = true;
           installDependencies = true;
-          config = ''
-            return {
-              "neovim/nvim-lspconfig",
-              opts = {
-                servers = {
-                  yamlls = {
-                    settings = {
-                      yaml = {
-                        schemas = {
-                          ["https://json.schemastore.org/pubspec.yaml"] = "pubspec.yaml",
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            }
-          '';
         };
         json.enable = true;
         sql.enable = true;

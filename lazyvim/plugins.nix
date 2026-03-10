@@ -2,6 +2,15 @@
 {
   programs.lazyvim.plugins = {
 
+    snacks = ''
+      return {
+        "folke/snacks.nvim",
+        opts = {
+          statuscolumn = { enabled = false },
+        },
+      }
+    '';
+
     theme = ''
       return {
         "Rigellute/shades-of-purple.vim",
@@ -15,7 +24,7 @@
 
     minimap = ''
       return {
-        "echasnovski/mini.map",
+        "nvim-mini/mini.map",
         version = "*",
         event = "BufReadPost",
         config = function()
