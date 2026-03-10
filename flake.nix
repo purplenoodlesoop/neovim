@@ -27,6 +27,16 @@
                 gh
                 git
               ];
+              flake.packages.module-eval =
+                let
+                  lazyvimMod = import ./lazyvim { inherit pkgs; };
+                in
+                pkgs.buildEnv {
+                  name = "neovim-config-check";
+                  paths =
+                    lazyvimMod.programs.lazyvim.extraPackages
+                    ++ lazyvimMod.programs.lazyvim.treesitterParsers;
+                };
             };
         };
       topLevel.homeManagerModules.default =

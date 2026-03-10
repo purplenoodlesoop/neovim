@@ -8,6 +8,7 @@
   programs.lazyvim = {
     enable = true;
     installCoreDependencies = true;
+    ignoreBuildNotifications = true;
 
     extraPackages = with pkgs; [
       silicon
@@ -19,7 +20,6 @@
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
       xml
-      jsonc
     ];
 
     extras = {
