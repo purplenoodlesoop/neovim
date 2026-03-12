@@ -2,6 +2,34 @@
 {
   programs.lazyvim.plugins = {
 
+    lualine = ''
+      return {
+        "nvim-lualine/lualine.nvim",
+        opts = function(_, opts)
+          opts.sections = opts.sections or {}
+          opts.sections.lualine_y = opts.sections.lualine_y or {}
+          table.insert(opts.sections.lualine_y, 1, {
+            function()
+              local e = vim.g.workspace_diag_errors or 0
+              local w = vim.g.workspace_diag_warnings or 0
+              if e == 0 and w == 0 then return "" end
+              local icons = LazyVim.config.icons.diagnostics
+              local parts = {}
+              if e > 0 then table.insert(parts, icons.Error .. e) end
+              if w > 0 then table.insert(parts, icons.Warn .. w) end
+              return table.concat(parts, " ")
+            end,
+            color = function()
+              local e = vim.g.workspace_diag_errors or 0
+              if e > 0 then return { fg = Snacks.util.color("DiagnosticError") } end
+              return { fg = Snacks.util.color("DiagnosticWarn") }
+            end,
+          })
+          return opts
+        end,
+      }
+    '';
+
     snacks = ''
       return {
         "folke/snacks.nvim",
@@ -33,7 +61,16 @@
         lazy = false,
         priority = 1000,
         config = function()
-          require("silkcircuit").setup({})
+          require("silkcircuit").setup({
+            integrations = {
+              lualine = false,
+              gitsigns = false,
+              indent_blankline = false,
+              bufferline = false,
+              noice = false,
+              notify = false,
+            },
+          })
           vim.cmd("colorscheme silkcircuit")
         end,
       }

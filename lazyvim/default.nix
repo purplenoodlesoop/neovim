@@ -63,6 +63,9 @@
               opts = {
                 filesystem = {
                   use_libuv_file_watcher = true,
+                  filtered_items = {
+                    visible = true,
+                  },
                 },
               },
             }
@@ -70,6 +73,7 @@
         };
         overseer.enable = true;
       };
+      ai.copilot.enable = true;
       dap.core.enable = true;
       test.core.enable = true;
       ui.indent_blankline.enable = true;
