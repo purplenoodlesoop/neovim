@@ -4,8 +4,10 @@
     vim.keymap.set("n", "<leader>ac", function()
       local screenshot = "/tmp/nvim_screenshot.png"
       vim.fn.system("screencapture -x " .. screenshot)
+      local msg = "My current Neovim state is shown in the attached screenshot. My Neovim config is in this directory."
+      local cmd = "opencode run -f " .. vim.fn.shellescape(screenshot) .. " -- " .. vim.fn.shellescape(msg) .. " && opencode --continue"
       Snacks.terminal.open(
-        { "claude", "Screenshot of my current Neovim state: " .. screenshot .. "\nMy Neovim config is in this directory." },
+        { "bash", "-c", cmd },
         {
           cwd = "${config.home.homeDirectory}/Documents/Programming/nix/neovim",
           win = {
@@ -16,7 +18,7 @@
           },
         }
       )
-    end, { desc = "Claude" })
+    end, { desc = "Opencode" })
   '';
 
   programs.lazyvim.config.options = ''
@@ -25,6 +27,8 @@
     vim.opt.number = true
     vim.opt.relativenumber = true
     vim.opt.shortmess:remove("S")
+    vim.opt.wrap = true
+    vim.opt.linebreak = true
   '';
 
   programs.lazyvim.config.autocmds = ''
@@ -59,6 +63,25 @@
         end
         vim.g.workspace_diag_errors = counts[1] or 0
         vim.g.workspace_diag_warnings = counts[2] or 0
+      end,
+    })
+
+    vim.api.nvim_create_autocmd("LspAttach", {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client.name == "dartls" then
+          vim.defer_fn(function()
+            if vim.api.nvim_buf_is_valid(args.buf) then
+              vim.lsp.inlay_hint.enable(false, { bufnr = args.buf })
+              vim.keymap.set("n", "<leader>uh", function()
+                vim.lsp.inlay_hint.enable(
+                  not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf }),
+                  { bufnr = args.buf }
+                )
+              end, { buffer = args.buf, desc = "Toggle Inlay Hints" })
+            end
+          end, 0)
+        end
       end,
     })
 

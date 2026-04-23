@@ -45,7 +45,10 @@
           enable = true;
           installDependencies = false;
         };
-        markdown.enable = true;
+        markdown = {
+          enable = true;
+          installDependencies = true;
+        };
         yaml = {
           enable = true;
           installDependencies = true;

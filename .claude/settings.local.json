@@ -4,10 +4,14 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:nix-community.github.io)",
-      "Bash(git commit:*)",
       "Bash(./result/bin/nvim:*)",
       "WebFetch(domain:github.com)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "WebSearch",
+      "WebFetch(domain:neovim.io)",
+      "Read(//Users/yakov/.config/nix-darwin/**)",
+      "Bash(nix flake:*)",
+      "Bash(nswitch)"
     ]
   }
 }

@@ -99,16 +99,7 @@
               show_integration_count = false,
             },
           })
-          vim.api.nvim_create_autocmd("BufWinEnter", {
-            callback = function()
-              local ft = vim.bo.filetype
-              local excluded = { "neo-tree", "lazy", "mason", "TelescopePrompt", "help", "toggleterm" }
-              for _, v in ipairs(excluded) do
-                if ft == v then return end
-              end
-              MiniMap.open()
-            end,
-          })
+          vim.keymap.set("n", "<leader>um", MiniMap.toggle, { desc = "Toggle Minimap" })
         end,
       }
     '';
