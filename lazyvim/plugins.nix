@@ -159,6 +159,9 @@
         config = function()
           local rainbow = require("rainbow-delimiters")
           require("rainbow-delimiters.setup").setup({
+            condition = function(bufnr)
+              return vim.bo[bufnr].buftype == ""
+            end,
             strategy = {
               [""] = rainbow.strategy["global"],
             },
