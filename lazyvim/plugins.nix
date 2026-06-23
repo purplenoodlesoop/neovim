@@ -152,13 +152,26 @@
       }
     '';
 
-    dart-inlay-hints = ''
+    dart-lsp = ''
       return {
         "neovim/nvim-lspconfig",
         opts = function(_, opts)
+          -- flutter-tools.nvim owns the dartls client (closing tags, outline,
+          -- hot reload, dev tools). Stop LazyVim's lang.dart extra from starting
+          -- a second generic dartls, which would double up diagnostics,
+          -- completions and inlay hints. LSP keymaps still attach to the
+          -- flutter-tools client via LazyVim's global on-attach.
+          opts.servers = opts.servers or {}
+          opts.servers.dartls = opts.servers.dartls or {}
+          opts.servers.dartls.enabled = false
+
+          -- Keep dart buffers free of inlay hints by default (reveal via
+          -- <leader>uh). dartls exposes no per-kind hint toggle, so exclude
+          -- the whole filetype.
           opts.inlay_hints = opts.inlay_hints or {}
           opts.inlay_hints.exclude = opts.inlay_hints.exclude or {}
           table.insert(opts.inlay_hints.exclude, "dart")
+
           return opts
         end,
       }
