@@ -66,25 +66,6 @@
       end,
     })
 
-    vim.api.nvim_create_autocmd("LspAttach", {
-      callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client.name == "dartls" then
-          vim.defer_fn(function()
-            if vim.api.nvim_buf_is_valid(args.buf) then
-              vim.lsp.inlay_hint.enable(false, { bufnr = args.buf })
-              vim.keymap.set("n", "<leader>uh", function()
-                vim.lsp.inlay_hint.enable(
-                  not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf }),
-                  { bufnr = args.buf }
-                )
-              end, { buffer = args.buf, desc = "Toggle Inlay Hints" })
-            end
-          end, 0)
-        end
-      end,
-    })
-
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "FocusGained" }, {
       pattern = "*",
       callback = function()
