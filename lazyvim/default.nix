@@ -21,6 +21,7 @@
 
     treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
       xml
+      ruby # Podfile / Fastfile / Gemfile highlighting + rainbow-delimiters
     ];
 
     extras = {

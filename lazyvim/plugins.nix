@@ -185,7 +185,14 @@
           local rainbow = require("rainbow-delimiters")
           require("rainbow-delimiters.setup").setup({
             condition = function(bufnr)
-              return vim.bo[bufnr].buftype == ""
+              if vim.bo[bufnr].buftype ~= "" then
+                return false
+              end
+              -- Only attach when a treesitter parser actually exists for this
+              -- buffer; otherwise rainbow-delimiters indexes a nil parser and
+              -- throws (e.g. opening a Podfile with no ruby parser installed).
+              local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+              return ok and parser ~= nil
             end,
             strategy = {
               [""] = rainbow.strategy["global"],
