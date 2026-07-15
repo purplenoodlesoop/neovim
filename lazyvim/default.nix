@@ -59,7 +59,7 @@
         git.enable = true;
       };
       editor = {
-        neo_tree = {
+        "neo-tree" = {
           enable = true;
           config = ''
             return {
@@ -80,7 +80,7 @@
       ai.copilot.enable = true;
       dap.core.enable = true;
       test.core.enable = true;
-      ui.indent_blankline.enable = true;
+      ui."indent-blankline".enable = true;
       formatting.prettier.enable = true;
     };
   };
