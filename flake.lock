@@ -8,15 +8,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1744189312,
-        "narHash": "sha256-ldYWtsDB6WZUIFLQauaYNVKkkN7Ok/yFF6xcsEQNU5A=",
+        "lastModified": 1784104939,
+        "narHash": "sha256-3ANwq95prXkcYiLqj7sBxsv+pd+98PvD0FXf3U5Adoc=",
         "owner": "purplenoodlesoop",
         "repo": "core-flake",
-        "rev": "a9b97b2e6efa143a2aad7dd18ba7e535b4c2ac24",
+        "rev": "8a617042f48c75f07a9e34fb8cdaffa34ab5c692",
         "type": "github"
       },
       "original": {
         "owner": "purplenoodlesoop",
+        "ref": "evalflake-systems",
         "repo": "core-flake",
         "type": "github"
       }

@@ -2,7 +2,9 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     core-flake = {
-      url = "github:purplenoodlesoop/core-flake";
+      # Branch adds the `systems` arg to evalFlake; point back at master once
+      # https://github.com/purplenoodlesoop/core-flake/tree/evalflake-systems merges.
+      url = "github:purplenoodlesoop/core-flake/evalflake-systems";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lazyvim-nix = {
@@ -17,6 +19,12 @@
       perSystem =
         with core-flake;
         lib.evalFlake {
+          # nixpkgs unstable dropped x86_64-darwin; evaluating it throws.
+          systems = [
+            "aarch64-darwin"
+            "aarch64-linux"
+            "x86_64-linux"
+          ];
           perSystem =
             { pkgs, ... }:
             {
