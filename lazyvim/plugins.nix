@@ -9,20 +9,43 @@ let
   # lazy.nvim key specs are mixed positional/keyed tables, which toLua cannot
   # express; render each one inline.
   key = lhs: subcommand: desc: mkLuaInline ''{ "${lhs}", "<cmd>Obsidian ${subcommand}<cr>", desc = "${desc}" }'';
+  # Single source of truth for note vaults: obsidian workspaces and the
+  # markdownlint exclusion below both derive from this list.
+  vaults = [
+    {
+      name = "default";
+      path = "~/Documents/Default";
+      # Mirrors this vault's .obsidian/daily-notes.json.
+      overrides.daily_notes.folder = "daily";
+    }
+    {
+      name = "mobile-doc";
+      path = "~/flutter/mobile/doc";
+    }
+    {
+      name = "assistant";
+      path = "~/assistant";
+    }
+  ];
+  vaultPathsLua = lib.concatMapStringsSep ", " (v: ''"${v.path}"'') vaults;
 in
 {
   programs.lazyvim.plugins = {
 
     # Notes are prose, not READMEs: markdownlint's defaults (line length,
-    # heading rules, bare URLs) are all noise there. Drop the linter; spell,
-    # prettier and render-markdown stay.
+    # heading rules, bare URLs) are all noise there. Keep the linter for
+    # repo markdown, skip files living inside a note vault.
     markdown-lint = lazyvimLib.lazyConfig {
       plugin = "mfussenegger/nvim-lint";
       optional = true;
-      opts = mkLuaInline ''
-        function(_, opts)
-          opts.linters_by_ft.markdown = nil
-          return opts
+      opts.linters."markdownlint-cli2".condition = mkLuaInline ''
+        function(ctx)
+          for _, vault in ipairs({ ${vaultPathsLua} }) do
+            if ctx.filename:find(vim.fs.normalize(vault), 1, true) == 1 then
+              return false
+            end
+          end
+          return true
         end'';
     };
 
@@ -46,22 +69,7 @@ in
       ];
       opts = {
         legacy_commands = false;
-        workspaces = [
-          {
-            name = "default";
-            path = "~/Documents/Default";
-            # Mirrors this vault's .obsidian/daily-notes.json.
-            overrides.daily_notes.folder = "daily";
-          }
-          {
-            name = "mobile-doc";
-            path = "~/flutter/mobile/doc";
-          }
-          {
-            name = "assistant";
-            path = "~/assistant";
-          }
-        ];
+        workspaces = vaults;
         ui.enable = false;
       };
     };
