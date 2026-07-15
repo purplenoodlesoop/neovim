@@ -37,7 +37,6 @@ in
       cmd = [ "Obsidian" ];
       dependencies = [ "nvim-lua/plenary.nvim" ];
       keys = [
-        (key "<leader>ww" "quick_switch" "Notes: quick switch")
         (key "<leader>zf" "quick_switch" "Find note")
         (key "<leader>zg" "search" "Grep notes")
         (key "<leader>zd" "today" "Daily note")

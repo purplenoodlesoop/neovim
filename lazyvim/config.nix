@@ -65,15 +65,5 @@
         vim.g.workspace_diag_warnings = counts[2] or 0
       end,
     })
-
-    vim.api.nvim_create_autocmd({ "BufWritePost", "BufEnter", "FocusGained" }, {
-      pattern = "*",
-      callback = function()
-        local ok, manager = pcall(require, "neo-tree.sources.manager")
-        if ok then
-          manager.refresh("filesystem")
-        end
-      end,
-    })
   '';
 }
