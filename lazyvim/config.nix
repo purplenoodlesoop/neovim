@@ -1,5 +1,18 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
+  # Russian spell dictionary, pinned instead of nvim's runtime download
+  # prompt. Keeps `spell = true` useful in mixed en/ru notes.
+  xdg.configFile = {
+    "nvim/spell/ru.utf-8.spl".source = pkgs.fetchurl {
+      url = "https://ftp.nluug.nl/pub/vim/runtime/spell/ru.utf-8.spl";
+      sha256 = "0kf5vbk7lmwap1k4y4c1fm17myzbmjyzwz0arh5v6810ibbknbgb";
+    };
+    "nvim/spell/ru.utf-8.sug".source = pkgs.fetchurl {
+      url = "https://ftp.nluug.nl/pub/vim/runtime/spell/ru.utf-8.sug";
+      sha256 = "0frrdxhp37f8xi4wp6f2mxs07arbk3vqr038h3xmnpfqi8b8dgga";
+    };
+  };
+
   programs.lazyvim.config.keymaps = ''
     vim.keymap.set("n", "<leader>ac", function()
       local screenshot = "/tmp/nvim_screenshot.png"
@@ -23,6 +36,7 @@
 
   programs.lazyvim.config.options = ''
     vim.opt.spell = true
+    vim.opt.spelllang = { "en", "ru" }
     vim.opt.autoread = true
     vim.opt.number = true
     vim.opt.relativenumber = true
