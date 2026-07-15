@@ -54,6 +54,9 @@
             lazyvim-nix.homeManagerModules.default
             ./lazyvim
           ];
+          # Nix-attrset -> lazy.nvim spec generators (lazyConfig/lazyPlugin),
+          # so plugin specs are checked at eval time instead of raw Lua strings.
+          _module.args.lazyvimLib = lazyvim-nix.lib;
         };
 
     in

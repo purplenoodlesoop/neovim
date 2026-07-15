@@ -1,6 +1,36 @@
-{ ... }:
+{ pkgs, lazyvimLib, ... }:
 {
   programs.lazyvim.plugins = {
+
+    # Notes: wikilinks, daily notes, backlinks over plain-markdown vaults.
+    # `dir` points lazy.nvim at the nixpkgs build, so the plugin is pinned by
+    # the flake and never cloned at runtime. Rendering stays with
+    # render-markdown.nvim from the lang.markdown extra (ui.enable = false).
+    obsidian = lazyvimLib.lazyConfig {
+      plugin = "obsidian-nvim/obsidian.nvim";
+      dir = "${pkgs.vimPlugins.obsidian-nvim}";
+      ft = "markdown";
+      cmd = [ "Obsidian" ];
+      dependencies = [ "nvim-lua/plenary.nvim" ];
+      opts = {
+        legacy_commands = false;
+        workspaces = [
+          {
+            name = "default";
+            path = "~/Documents/Default";
+          }
+          {
+            name = "mobile-doc";
+            path = "~/flutter/mobile/doc";
+          }
+          {
+            name = "assistant";
+            path = "~/assistant";
+          }
+        ];
+        ui.enable = false;
+      };
+    };
 
     lualine = ''
       return {
