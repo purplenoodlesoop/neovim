@@ -1,6 +1,30 @@
-{ pkgs, lazyvimLib, ... }:
+{
+  lib,
+  pkgs,
+  lazyvimLib,
+  ...
+}:
+let
+  inherit (lib.generators) mkLuaInline;
+  # lazy.nvim key specs are mixed positional/keyed tables, which toLua cannot
+  # express; render each one inline.
+  key = lhs: subcommand: desc: mkLuaInline ''{ "${lhs}", "<cmd>Obsidian ${subcommand}<cr>", desc = "${desc}" }'';
+in
 {
   programs.lazyvim.plugins = {
+
+    # Notes are prose, not READMEs: markdownlint's defaults (line length,
+    # heading rules, bare URLs) are all noise there. Drop the linter; spell,
+    # prettier and render-markdown stay.
+    markdown-lint = lazyvimLib.lazyConfig {
+      plugin = "mfussenegger/nvim-lint";
+      optional = true;
+      opts = mkLuaInline ''
+        function(_, opts)
+          opts.linters_by_ft.markdown = nil
+          return opts
+        end'';
+    };
 
     # Notes: wikilinks, daily notes, backlinks over plain-markdown vaults.
     # `dir` points lazy.nvim at the nixpkgs build, so the plugin is pinned by
@@ -12,6 +36,15 @@
       ft = "markdown";
       cmd = [ "Obsidian" ];
       dependencies = [ "nvim-lua/plenary.nvim" ];
+      keys = [
+        (key "<leader>ww" "quick_switch" "Notes: quick switch")
+        (key "<leader>zf" "quick_switch" "Find note")
+        (key "<leader>zg" "search" "Grep notes")
+        (key "<leader>zd" "today" "Daily note")
+        (key "<leader>zb" "backlinks" "Backlinks")
+        (key "<leader>zn" "new" "New note")
+        (key "<leader>zw" "workspace" "Switch workspace")
+      ];
       opts = {
         legacy_commands = false;
         workspaces = [
