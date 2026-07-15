@@ -18,6 +18,8 @@
           {
             name = "default";
             path = "~/Documents/Default";
+            # Mirrors this vault's .obsidian/daily-notes.json.
+            overrides.daily_notes.folder = "daily";
           }
           {
             name = "mobile-doc";
