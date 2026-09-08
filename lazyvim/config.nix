@@ -46,6 +46,42 @@
   '';
 
   programs.lazyvim.config.autocmds = ''
+    -- Obsidian-style list continuation. nvim's markdown ftplugin opts out of
+    -- this deliberately (formatoptions-=ro, and fb: leaders that apply to the
+    -- first line only), so put it back per buffer. The checkbox leader has to
+    -- come first: 'comments' uses the first entry that matches.
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "markdown",
+      callback = function()
+        vim.opt_local.comments = { "b:- [ ]", "b:*", "b:-", "b:+", "n:>" }
+        vim.opt_local.formatoptions:append("ro")
+      end,
+      desc = "Continue markdown lists on <CR> and o/O",
+    })
+
+    -- Autosave notes whenever focus leaves the buffer, the window or nvim
+    -- itself. Markdown only: elsewhere this would fire format-on-save on every
+    -- buffer switch. Pairs with the checktime autocmd below, which pulls in
+    -- edits made to the same note from Obsidian or another client.
+    vim.api.nvim_create_autocmd({ "FocusLost", "BufLeave", "WinLeave" }, {
+      callback = function(ev)
+        local bo = vim.bo[ev.buf]
+        if bo.filetype ~= "markdown" or bo.buftype ~= "" then
+          return
+        end
+        if not bo.modified or not bo.modifiable or bo.readonly then
+          return
+        end
+        if vim.api.nvim_buf_get_name(ev.buf) == "" then
+          return
+        end
+        vim.api.nvim_buf_call(ev.buf, function()
+          vim.cmd("silent! write")
+        end)
+      end,
+      desc = "Autosave markdown on focus change",
+    })
+
     vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
       pattern = "*",
       callback = function()
