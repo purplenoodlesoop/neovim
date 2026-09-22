@@ -115,31 +115,5 @@
         vim.g.workspace_diag_warnings = counts[2] or 0
       end,
     })
-
-    -- ~/eved is a read-only mirror of the assistant's memory, rewritten by git
-    -- whenever the host commits. Watch it, and reload whatever is open from it
-    -- the moment it changes, not only when focus or the cursor moves.
-    do
-      local root = "${config.home.homeDirectory}/eved"
-      if vim.uv.fs_stat(root) then
-        local watcher = vim.uv.new_fs_event()
-        local pending = false
-        watcher:start(root, { recursive = true }, function()
-          if pending then
-            return
-          end
-          pending = true
-          -- A sync touches many files at once; settle, then reload once.
-          vim.defer_fn(function()
-            pending = false
-            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-              if vim.api.nvim_buf_is_loaded(buf) and vim.startswith(vim.api.nvim_buf_get_name(buf), root .. "/") then
-                vim.cmd("checktime " .. buf)
-              end
-            end
-          end, 200)
-        end)
-      end
-    end
   '';
 }
